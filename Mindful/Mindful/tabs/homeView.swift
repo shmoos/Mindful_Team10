@@ -1,5 +1,28 @@
 import SwiftUI
 
+// Shared data model
+class MoodData: ObservableObject {
+    @Published var savedEntries: [MoodEntry] = [
+        MoodEntry(date: Date().addingTimeInterval(-86400 * 6), moodRating: 80, moodEmoji: "😊", moodName: "Happy", textEntry: "Had a great day at work!"),
+        MoodEntry(date: Date().addingTimeInterval(-86400 * 5), moodRating: 50, moodEmoji: "😐", moodName: "Neutral", textEntry: "Just an average day"),
+        MoodEntry(date: Date().addingTimeInterval(-86400 * 4), moodRating: 40, moodEmoji: "😟", moodName: "Anxious", textEntry: "Feeling a bit stressed"),
+        MoodEntry(date: Date().addingTimeInterval(-86400 * 3), moodRating: 60, moodEmoji: "😌", moodName: "Content", textEntry: "Enjoyed my morning walk"),
+        MoodEntry(date: Date().addingTimeInterval(-86400 * 2), moodRating: 30, moodEmoji: "😢", moodName: "Sad", textEntry: "Missing my family"),
+        MoodEntry(date: Date().addingTimeInterval(-86400 * 1), moodRating: 90, moodEmoji: "😄", moodName: "Excited", textEntry: "Got good news!"),
+        MoodEntry(date: Date(), moodRating: 50, moodEmoji: "😐", moodName: "Neutral", textEntry: "Just started my day")
+    ]
+    
+    func getEmotionData() -> [EmotionEntry] {
+        return savedEntries.map { entry in
+            EmotionEntry(
+                date: entry.date,
+                emotionLevel: entry.moodRating / 10,
+                emotion: entry.moodName
+            )
+        }
+    }
+}
+
 struct MoodEntry: Identifiable {
     let id = UUID()
     let date: Date
@@ -7,9 +30,18 @@ struct MoodEntry: Identifiable {
     let moodEmoji: String
     let moodName: String
     let textEntry: String?
+    
+    func toEmotionEntry() -> EmotionEntry {
+        return EmotionEntry(
+            date: date,
+            emotionLevel: moodRating / 10,
+            emotion: moodName
+        )
+    }
 }
 
 struct homeView: View {
+    @StateObject private var moodData = MoodData()
     var sliderColor: Color {
         let normalizedValue = value / 100.0
         return Color(
@@ -37,16 +69,15 @@ struct homeView: View {
     @State var showSheet: Bool = false
     @EnvironmentObject var backgroundManager: BackgroundManager
     @State var entry: Bool = true
-    @State private var savedEntries: [MoodEntry] = []
     
     var filteredEntries: [MoodEntry] {
-        return savedEntries.filter { entry in
+        return moodData.savedEntries.filter { entry in
             calendar.isDate(entry.date, inSameDayAs: selectedDate)
         }
     }
     
     var hasEntryForSelectedDate: Bool {
-        return savedEntries.contains { entry in
+        return moodData.savedEntries.contains { entry in
             calendar.isDate(entry.date, inSameDayAs: selectedDate)
         }
     }
@@ -163,7 +194,7 @@ struct homeView: View {
                 .hAlign(.trailing)
                 .padding()
                 .sheet(isPresented: $showSheet) {
-                    AddView(savedEntries: $savedEntries, selectedDate: selectedDate)
+                    AddView(savedEntries: $moodData.savedEntries, selectedDate: selectedDate)
                 }
             }
             .vAlign(.top)
@@ -202,7 +233,7 @@ struct homeView: View {
 
 struct AddView: View {
     enum InputMode {
-        case choice, text
+        case choice, text, analysis
     }
     
     var sliderColor: Color {
@@ -267,6 +298,23 @@ struct AddView: View {
                         .shadow(radius: 5)
                         .cornerRadius(20)
                     }
+                    
+                    // Analysis card
+                    Button {
+                        inputMode = .analysis
+                    } label: {
+                        VStack {
+                            Image(systemName: "brain.head.profile")
+                                .font(.largeTitle)
+                                .padding()
+                            Text("Mental Health Analysis")
+                                .font(.headline)
+                        }
+                        .frame(width: 200, height: 150)
+                        .background(Color.white.opacity(0.2))
+                        .shadow(radius: 5)
+                        .cornerRadius(20)
+                    }
                 }
             } else if inputMode == .choice {
                 VStack {
@@ -301,7 +349,7 @@ struct AddView: View {
                     }
                     .padding()
                 }
-            } else {
+            } else if inputMode == .text {
                 VStack {
                     Text("Journal your thoughts")
                         .font(.title2)
@@ -384,6 +432,17 @@ struct AddView: View {
                     
                 }
                 .vAlign(.top)
+            } else {
+                AnalysisAI()
+                    .navigationTitle("Mental Health Analysis")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Back") {
+                                inputMode = nil
+                            }
+                        }
+                    }
             }
         }
         .animation(.default, value: inputMode)

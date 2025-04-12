@@ -124,9 +124,9 @@ struct EmotionWheelView: View {
             }
         }
         .padding()
-        .onChange(of: currentIndex) { newIndex in
-            selectedEmoji = emotions[newIndex]
-            selectedEmotionName = emotionNames[newIndex]
+        .onChange(of: currentIndex) { oldValue, newValue in
+            selectedEmoji = emotions[newValue]
+            selectedEmotionName = emotionNames[newValue]
         }
     }
     

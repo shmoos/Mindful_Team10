@@ -1,7 +1,7 @@
 import SwiftUI
 
 class BackgroundManager: ObservableObject {
-    @Published var currentView: AnyView = AnyView(MoonBackground())
+    @Published var currentView: AnyView = AnyView(NatureBackground())
 }
 
 struct ContentView: View {

@@ -35,35 +35,7 @@ struct breathing: View {
         ZStack {
             backgroundManager.currentView
             VStack(spacing: 20) {
-                // Music note button with improved rotation toggle
-                Button {
-                    isRotating.toggle()
-                    if isRotating {
-                        withAnimation(continuousRotation) {
-                            rotationAngle += 360
-                        }
-                    }
-                } label: {
-                    Image(systemName: "music.note")
-                        .font(.title)
-                        .foregroundStyle(.white)
-                        .rotationEffect(.degrees(rotationAngle))
-                        .background(
-                            Circle()
-                                .fill(Color.secondary)
-                                .opacity(0.5)
-                                .frame(width: 75, height: 75)
-                        )
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .padding(.trailing, 35)
-                }
-                .padding()
-                .onAppear {
-                    // Start rotating automatically when view appears
-                    withAnimation(continuousRotation) {
-                        rotationAngle += 360
-                    }
-                }
+               
 
                 // Breathing circle animation
                 ZStack {
