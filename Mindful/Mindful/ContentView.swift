@@ -9,13 +9,13 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            backgroundManager.currentView // 👈 shows the current background
+            backgroundManager.currentView
 
             TabView {
                 homeView()
                     .tabItem {
                         Image(systemName: "bubble.and.pencil")
-                    }
+                    }//fjfj
                 breathing()
                     .tabItem {
                         Image(systemName: "figure.mind.and.body")
@@ -26,14 +26,11 @@ struct ContentView: View {
                     }
             }
             .accentColor(.primary)
-            .environmentObject(backgroundManager) // 👈 makes it available app-wide
+            .environmentObject(backgroundManager)
         }
         .ignoresSafeArea()
     }
 }
-
-
-
 
 #Preview {
     ContentView()

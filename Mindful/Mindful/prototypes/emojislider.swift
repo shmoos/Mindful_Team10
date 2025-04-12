@@ -1,7 +1,5 @@
 import SwiftUI
 
-
-
 struct EmotionWheelView: View {
     let emotions = ["😊", "😢", "😠", "🤩", "😌", "😴", "😰", "🥰", "😐"]
     let emotionNames = ["Happy", "Sad", "Angry", "Excited", "Calm", "Tired", "Anxious", "Loved", "Normal"]
@@ -9,12 +7,14 @@ struct EmotionWheelView: View {
     @State private var rotation: Double = 0
     @State private var currentIndex: Int = 0
     @State private var isDragging = false
-    @State private var value: Double = 50
+    @Binding var value: Double
+    @Binding var selectedEmoji: String
+    @Binding var selectedEmotionName: String
 
     var sliderColor: Color {
         let normalizedValue = value / 100.0
         return Color(
-            hue: normalizedValue * 0.33, // 0 (red) to 0.33 (green)
+            hue: normalizedValue * 0.33,
             saturation: 1.0,
             brightness: 1.0
         )
@@ -22,18 +22,16 @@ struct EmotionWheelView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            // Circular Slider
-            // Emotion label with smooth transition
             Text(emotionNames[currentIndex])
                 .font(.title)
                 .fontWeight(.medium)
                 .foregroundColor(.primary)
                 .transition(.opacity)
-                .id("emotionLabel-\(currentIndex)") // Force new view for animation
+                .id("emotionLabel-\(currentIndex)")
                 .animation(.easeInOut(duration: 0.2), value: currentIndex)
                 .padding(25)
+            
             ZStack {
-                // Track with gradient
                 Circle()
                     .stroke(
                         AngularGradient(
@@ -47,7 +45,6 @@ struct EmotionWheelView: View {
                     .frame(width: 250, height: 250)
                     .opacity(0.7)
                 
-                // Center Emoji with background pulse effect
                 Text(emotions[currentIndex])
                     .font(.system(size: 60))
                     .background(
@@ -57,10 +54,8 @@ struct EmotionWheelView: View {
                             .scaleEffect(isDragging ? 1.2 : 1.0)
                             .animation(.easeInOut(duration: 0.3), value: isDragging)
                     )
-                
                     .rotationEffect(.degrees(90))
-                    
-                // Knob with shadow
+                
                 Circle()
                     .fill(Color.white)
                     .shadow(color: .blue.opacity(0.5), radius: 5, x: 0, y: 0)
@@ -83,7 +78,6 @@ struct EmotionWheelView: View {
                             }
                     )
                 
-                // Subtle tick marks
                 ForEach(0..<emotions.count, id: \.self) { index in
                     Capsule()
                         .fill(currentIndex == index ? Color.blue : Color.black)
@@ -93,8 +87,6 @@ struct EmotionWheelView: View {
                 }
             }
             .rotationEffect(.degrees(-90))
-            
-            
             
             HStack {
                 Text("Mood Rate:")
@@ -107,9 +99,10 @@ struct EmotionWheelView: View {
                     .font(.title2)
                     .fontWeight(.medium)
                     .hAlign(.trailing)
-            }.hAlign(.leading)
-                .padding()
-                
+            }
+            .hAlign(.leading)
+            .padding()
+            
             ZStack {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color(.systemGray6))
@@ -131,8 +124,10 @@ struct EmotionWheelView: View {
             }
         }
         .padding()
-        
-        
+        .onChange(of: currentIndex) { newIndex in
+            selectedEmoji = emotions[newIndex]
+            selectedEmotionName = emotionNames[newIndex]
+        }
     }
     
     private func updateCurrentIndex() {
@@ -145,8 +140,9 @@ struct EmotionWheelView: View {
         }
     }
 }
+
 struct EmotionWheelView_Previews: PreviewProvider {
     static var previews: some View {
-        EmotionWheelView()
+        EmotionWheelView(value: .constant(50), selectedEmoji: .constant("😊"), selectedEmotionName: .constant("Happy"))
     }
 }
