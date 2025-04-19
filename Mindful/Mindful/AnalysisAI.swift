@@ -172,7 +172,7 @@ struct AnalysisAI: View {
         let url = URL(string: "https://openrouter.ai/api/v1/chat/completions")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.addValue("Bearer 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",
+        request.addValue("your-api-key",
                        forHTTPHeaderField: "Authorization")
         request.addValue("application/json",
                        forHTTPHeaderField: "Content-Type")
